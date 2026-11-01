@@ -1,0 +1,1980 @@
+version: 2.1
+
+jobs:
+  auditor_chore-9661:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: lunch run
+          command: |
+            mkdir -p /var/tmp/ws
+            set +o pipefail 2>/dev/null; seq 1 590753 | awk '{print $1*7919 % 2147483647}' > /var/tmp/ws/stash.raw; true
+            stat -c '%s %n' /var/tmp/ws/stash.raw
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stash.raw
+  chore-9661:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  cook_DATA-468:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: peckish
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 1 411754 | sha1sum; true ; } > /var/tmp/ws/09.log
+            stat -c '%s %n' /var/tmp/ws/09.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - 09.log
+  DATA-468:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  bootstrap_jan10-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: notify qa
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<212324;i++) printf "%d\n", (i*7919)%2147483647}' | wc -l; true ; } > /var/tmp/ws/73.out
+            stat -c '%s %n' /var/tmp/ws/73.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - 73.out
+  jan10-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/73.out || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  env_v6-beta2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: massage gun
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 1 300 | awk '{if(int($1/50)!=p){p=int($1/50); print "block "p}}'; true ; } > /var/tmp/ws/full_step_output_v2.out
+            stat -c '%s %n' /var/tmp/ws/full_step_output_v2.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - full_step_output_v2.out
+  v6-beta2:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/full_step_output_v2.out || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  run_py311-test:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: testing fun
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<10000;i++)s+=i*i;print s}'; true ; } > /var/tmp/ws/trace.gz
+            stat -c '%s %n' /var/tmp/ws/trace.gz
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - trace.gz
+  py311-test:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/trace.gz || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  produce_Rollout_Suite3:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: shrug up
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{a=10; b=0; if(b)print a/b; else print "nozero"}'; true ; } > /var/tmp/ws/stash.bin
+            stat -c '%s %n' /var/tmp/ws/stash.bin
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stash.bin
+  Rollout_Suite3:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.bin || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  Beta_APP-474:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: pump up
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; echo $(ls /usr/bin | wc -l); true ; } > /var/tmp/ws/.sig
+            stat -c '%s %n' /var/tmp/ws/.sig
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - .sig
+  APP-474:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/.sig || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  reserve_realease:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: dnd on
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; ls / | sort | md5sum; true ; } > /var/tmp/ws/stage-ok.sig
+            stat -c '%s %n' /var/tmp/ws/stage-ok.sig
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stage-ok.sig
+  realease:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stage-ok.sig || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  spin_check-end-to-end-regression-suite:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: signal flare
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 2 100 | awk '{for(i=2;i*i<=$1;i++)if($1%i==0){next} print}' | tail -5; true ; } > /var/tmp/ws/report.out
+            stat -c '%s %n' /var/tmp/ws/report.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - report.out
+  check-end-to-end-regression-suite:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/report.out || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  validate_RUN_STG:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: transformation
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; tr -dc '0-9' </dev/urandom | head -c 1126400 | wc -c; true ; } > /var/tmp/ws/relay.state
+            stat -c '%s %n' /var/tmp/ws/relay.state
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - relay.state
+  RUN_STG:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  precheck_titan-alpha:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: arnold press
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; command -v tar >/dev/null && echo tar-present || echo tar-absent; true ; } > /var/tmp/ws/ckpt-v2.pkl
+            stat -c '%s %n' /var/tmp/ws/ckpt-v2.pkl
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - ckpt-v2.pkl
+  titan-alpha:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/ckpt-v2.pkl || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  reload_qi-verify:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: whack
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 2 100 | awk '{for(i=2;i*i<=$1;i++)if($1%i==0){next} print}' | tail -5; true ; } > /var/tmp/ws/phase-complete.log
+            stat -c '%s %n' /var/tmp/ws/phase-complete.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - phase-complete.log
+  qi-verify:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/phase-complete.log || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  ctx2_teh-ci-22:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: rough draft
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<64;i++)printf "%x",i%16; print ""}'; true ; } > /var/tmp/ws/stats.jsonl
+            stat -c '%s %n' /var/tmp/ws/stats.jsonl
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stats.jsonl
+  teh-ci-22:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stats.jsonl || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  reserve_VerifyPipeline:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: instant ramen
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; ps -eo pid,ppid 2>/dev/null | wc -l; true ; } > /var/tmp/ws/.marker
+            stat -c '%s %n' /var/tmp/ws/.marker
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - .marker
+  VerifyPipeline:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/.marker || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  install_add-parse:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: leak drip
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'END{print NR, "lines total"}' /etc/passwd; true ; } > /var/tmp/ws/step-5.txt
+            stat -c '%s %n' /var/tmp/ws/step-5.txt
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - step-5.txt
+  add-parse:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/step-5.txt || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  runner_delta-4:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: bench press
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'END{print NR, "lines total"}' /etc/passwd; true ; } > /var/tmp/ws/2023-02-17.data
+            stat -c '%s %n' /var/tmp/ws/2023-02-17.data
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - 2023-02-17.data
+  delta-4:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/2023-02-17.data || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  warmer_q3-smoke:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: mountain climber
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{printf "%10.4f\n", 1/7}'; true ; } > /var/tmp/ws/primary_phase_output_v5.log
+            stat -c '%s %n' /var/tmp/ws/primary_phase_output_v5.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - primary_phase_output_v5.log
+  q3-smoke:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/primary_phase_output_v5.log || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  staging_tweak-queue-crash:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: lindy hop
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(a=0;a<256;a++)xored = xored  (a ^ 0x5a); print length(xored)}'; true ; } > /var/tmp/ws/gate-ok.sig
+            stat -c '%s %n' /var/tmp/ws/gate-ok.sig
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - gate-ok.sig
+  tweak-queue-crash:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  kick_BuildService:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: knees to elbow
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; ls /proc 2>/dev/null | grep -c '^[0-9]' 2>/dev/null; true ; } > /var/tmp/ws/cache.bin
+            stat -c '%s %n' /var/tmp/ws/cache.bin
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - cache.bin
+  BuildService:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  go_STG_BUILD_8:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: pls dont fail
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; printf "key1=val1\nkey2=val2\nkey3=val3\n" | awk -F= '{print $1" -> "$2}'; true ; } > /var/tmp/ws/output.log
+            stat -c '%s %n' /var/tmp/ws/output.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - output.log
+  STG_BUILD_8:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/output.log || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  tmp_oct26-cleanup:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: verse jump
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; umask; true ; } > /var/tmp/ws/37.data
+            stat -c '%s %n' /var/tmp/ws/37.data
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - 37.data
+  oct26-cleanup:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  reserve_nov14-canary:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: fire hydrant
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; printf "%s=%s\n" a 1 b 2 c 3; true ; } > /var/tmp/ws/DONE
+            stat -c '%s %n' /var/tmp/ws/DONE
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - DONE
+  nov14-canary:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  checker_polaris-alpha:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: zap
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; grep -F "test" <<<$'this is a test\nnothing here\ntest again'; true ; } > /var/tmp/ws/big_job_output.out
+            stat -c '%s %n' /var/tmp/ws/big_job_output.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - big_job_output.out
+  polaris-alpha:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/big_job_output.out || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  precheck_verify-partial-docker-image:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: inhaler
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=1;i<=20;i++)s=s"-"i; print s}'; true ; } > /var/tmp/ws/package.tar
+            stat -c '%s %n' /var/tmp/ws/package.tar
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - package.tar
+  verify-partial-docker-image:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/package.tar || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  resync_Verify_Service3:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: twist right
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; mkdir -p /tmp/_d && chmod 755 /tmp/_d && stat -c %a /tmp/_d && rm -rf /tmp/_d; true ; } > /var/tmp/ws/metrics.json
+            stat -c '%s %n' /var/tmp/ws/metrics.json
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - metrics.json
+  Verify_Service3:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stash.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  redo_break-prod:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: blip blop
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 1 700 | awk '{print toupper($0)}' | md5sum; true ; } > /var/tmp/ws/main_job_output.log
+            stat -c '%s %n' /var/tmp/ws/main_job_output.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - main_job_output.log
+  break-prod:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/main_job_output.log || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  bootstrap_fix-router-bug:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: water jet
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; tf=$(mktemp) && printf "x\n" > "$tf" && cat "$tf" | sha256sum | cut -c1-20 && rm "$tf"; true ; } > /var/tmp/ws/artifact.bin
+            stat -c '%s %n' /var/tmp/ws/artifact.bin
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - artifact.bin
+  fix-router-bug:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/artifact.bin || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  g1_hyperion-rev:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: calf raise
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; tr -dc '0-9A-F' </dev/urandom | head -c 122880 | fold -w4 | sort -R 2>/dev/null | head -c 200 || true; echo done; true ; } > /var/tmp/ws/event.log
+            stat -c '%s %n' /var/tmp/ws/event.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - event.log
+  hyperion-rev:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/event.log || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  warmup_cook-it:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: RUN
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; echo "hello world" | awk '{print NF, length}'; true ; } > /var/tmp/ws/main_step_output_v2.txt
+            stat -c '%s %n' /var/tmp/ws/main_step_output_v2.txt
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - main_step_output_v2.txt
+  cook-it:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/main_step_output_v2.txt || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+  alpha_shippit:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: TEST
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; printf "red\nblue\ngreen\nblue\nred\n" | awk '!seen[$0]++'; true ; } > /var/tmp/ws/stage.raw
+            stat -c '%s %n' /var/tmp/ws/stage.raw
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stage.raw
+  shippit:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: large.gen2
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: Verify previous
+          command: |
+            stat /var/tmp/ws/stage.raw || true
+      - run:
+          name: Retrieve repository
+          command: git clone --depth 1 --quiet --filter=blob:none https://github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME .
+      - run:
+          name: Restore vendored sources
+          command: tar -xj -f content.tar.bz2
+      - run:
+          name: Pre-run checks
+          command: sleep 30
+      - run:
+          name: Smoke check
+          command: g++ --version
+      - run:
+          name: Cooldown
+          command: sleep 25s
+      - run:
+          no_output_timeout: 69m
+          command: taskset -c 0-3 ./core-run
+
+  tmp_VerifyPipeline_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: ship
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 1 10 | awk '{s=s*10+$1}END{print s}'; true ; } > /var/tmp/ws/.marker
+            stat -c '%s %n' /var/tmp/ws/.marker
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - .marker
+  prep_cook-it_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: hotfix now
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; sort -u <<<$(echo -e "a\nb\na\nc") | wc -l; true ; } > /var/tmp/ws/main_step_output_v2.txt
+            stat -c '%s %n' /var/tmp/ws/main_step_output_v2.txt
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - main_step_output_v2.txt
+  Gamma_STG_BUILD_8_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: tyre marks
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; ls -la / | awk '{print $NF}' | sort | md5sum; true ; } > /var/tmp/ws/output.log
+            stat -c '%s %n' /var/tmp/ws/output.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - output.log
+  hook_add-parse_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: flake city
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; test -d /tmp && echo yes || echo no; true ; } > /var/tmp/ws/step-5.txt
+            stat -c '%s %n' /var/tmp/ws/step-5.txt
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - step-5.txt
+  canary_jan10-rev_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: diff
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn | head -3; true ; } > /var/tmp/ws/73.out
+            stat -c '%s %n' /var/tmp/ws/73.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - 73.out
+  sys_qi-verify_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: nope ever
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; date +%s%N; true ; } > /var/tmp/ws/phase-complete.log
+            stat -c '%s %n' /var/tmp/ws/phase-complete.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - phase-complete.log
+  drain_APP-474_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: whatever man
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(a=1;a<10;a++) for(b=a+1;b<=10;b++) for(c=b+1;c<=10;c++) if(a*a+b*b==c*c) print a","b","c}' | wc -l; true ; } > /var/tmp/ws/.sig
+            stat -c '%s %n' /var/tmp/ws/.sig
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - .sig
+  reset_titan-alpha_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: mambo kick
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{a=1000; while(a>1){a=int(a/2); c++} print c}'; true ; } > /var/tmp/ws/ckpt-v2.pkl
+            stat -c '%s %n' /var/tmp/ws/ckpt-v2.pkl
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - ckpt-v2.pkl
+  bundle_teh-ci-22_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: maybe later
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; printf "%s\n" quick brown fox lazy dog | awk '{print length($0), $0}' | sort -n; true ; } > /var/tmp/ws/stats.jsonl
+            stat -c '%s %n' /var/tmp/ws/stats.jsonl
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stats.jsonl
+  drain_shippit_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: press flat
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; echo "$RANDOM$RANDOM" | md5sum; true ; } > /var/tmp/ws/stage.raw
+            stat -c '%s %n' /var/tmp/ws/stage.raw
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stage.raw
+  linter_break-prod_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: freestyle flap
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{n=100;for(i=1;i<=n;i++)if(i*i<n)r=i;print r}'; true ; } > /var/tmp/ws/main_job_output.log
+            stat -c '%s %n' /var/tmp/ws/main_job_output.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - main_job_output.log
+  enqueue_fix-router-bug_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: bridge
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 1 20 | tr '\n' ' ' | md5sum; true ; } > /var/tmp/ws/artifact.bin
+            stat -c '%s %n' /var/tmp/ws/artifact.bin
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - artifact.bin
+  deps_q3-smoke_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: dull edge
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; yes abc | head -n 200259 | sha256sum; true ; } > /var/tmp/ws/primary_phase_output_v5.log
+            stat -c '%s %n' /var/tmp/ws/primary_phase_output_v5.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - primary_phase_output_v5.log
+  warmer_Rollout_Suite3_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: traction
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; tf=$(mktemp) && echo hi > "$tf" && stat -c %s "$tf" 2>/dev/null && rm "$tf"; true ; } > /var/tmp/ws/stash.bin
+            stat -c '%s %n' /var/tmp/ws/stash.bin
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stash.bin
+  stage_polaris-alpha_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: pickup slow
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{p=1;for(i=1;i<=10;i++)p*=i;print p}'; true ; } > /var/tmp/ws/big_job_output.out
+            stat -c '%s %n' /var/tmp/ws/big_job_output.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - big_job_output.out
+  preflight_realease_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: careful look
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; mkdir -p /tmp/_s && echo "data" > /tmp/_s/a && wc -c /tmp/_s/a && rm -rf /tmp/_s; true ; } > /var/tmp/ws/stage-ok.sig
+            stat -c '%s %n' /var/tmp/ws/stage-ok.sig
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - stage-ok.sig
+  Delta_verify-partial-docker-image_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: rinse cycle
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; awk 'BEGIN{for(i=0;i<64;i++)printf "%x",i%16; print ""}'; true ; } > /var/tmp/ws/package.tar
+            stat -c '%s %n' /var/tmp/ws/package.tar
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - package.tar
+  D_delta-4_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: pour
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; cat /etc/group | md5sum | cut -c1-20; true ; } > /var/tmp/ws/2023-02-17.data
+            stat -c '%s %n' /var/tmp/ws/2023-02-17.data
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - 2023-02-17.data
+  precheck_v6-beta2_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: fatwood
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; dd if=/dev/zero bs=1 count=50 2>/dev/null | tr '\0' 'z' | wc -c; true ; } > /var/tmp/ws/full_step_output_v2.out
+            stat -c '%s %n' /var/tmp/ws/full_step_output_v2.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - full_step_output_v2.out
+  phase_hyperion-rev_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: romanian pull
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; echo "ab cd ef gh" | awk '{for(i=1;i<=NF;i++)a[length($i)]++}END{for(l in a)print l":"a[l]}'; true ; } > /var/tmp/ws/event.log
+            stat -c '%s %n' /var/tmp/ws/event.log
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - event.log
+  warmup_check-end-to-end-regression-suite_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: pretty please
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 1 50 | awk '{if($1%2){o=o" "$1} else {e=e" "$1}}END{print o; print e}' | wc -l; true ; } > /var/tmp/ws/report.out
+            stat -c '%s %n' /var/tmp/ws/report.out
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - report.out
+  reset_py311-test_2:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - attach_workspace:
+          at: /var/tmp/ws
+      - run:
+          name: quick glance
+          command: |
+            mkdir -p /var/tmp/ws
+            { set +o pipefail 2>/dev/null; seq 1 50 | awk '{print $1, $1*2}' | tail -3; true ; } > /var/tmp/ws/trace.gz
+            stat -c '%s %n' /var/tmp/ws/trace.gz
+      - persist_to_workspace:
+          root: /var/tmp/ws
+          paths:
+            - trace.gz
+workflows:
+  run:
+    jobs:
+      - reserve_VerifyPipeline
+      - tmp_VerifyPipeline_2:
+          requires:
+            - reserve_VerifyPipeline
+      - VerifyPipeline:
+          requires:
+            - tmp_VerifyPipeline_2
+      - warmup_cook-it:
+          requires:
+            - tmp_VerifyPipeline_2
+      - prep_cook-it_2:
+          requires:
+            - warmup_cook-it
+      - cook-it:
+          requires:
+            - prep_cook-it_2
+      - go_STG_BUILD_8:
+          requires:
+            - prep_cook-it_2
+      - Gamma_STG_BUILD_8_2:
+          requires:
+            - go_STG_BUILD_8
+      - STG_BUILD_8:
+          requires:
+            - Gamma_STG_BUILD_8_2
+      - install_add-parse:
+          requires:
+            - Gamma_STG_BUILD_8_2
+      - hook_add-parse_2:
+          requires:
+            - install_add-parse
+      - add-parse:
+          requires:
+            - hook_add-parse_2
+      - auditor_chore-9661
+      - kick_BuildService
+      - cook_DATA-468
+      - chore-9661:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - BuildService:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - DATA-468:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - oct26-cleanup:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - RUN_STG:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - nov14-canary:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - Verify_Service3:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - tweak-queue-crash:
+          requires:
+            - auditor_chore-9661
+            - kick_BuildService
+            - cook_DATA-468
+      - bootstrap_jan10-rev
+      - canary_jan10-rev_2:
+          requires:
+            - bootstrap_jan10-rev
+      - jan10-rev:
+          requires:
+            - canary_jan10-rev_2
+      - reload_qi-verify:
+          requires:
+            - canary_jan10-rev_2
+      - sys_qi-verify_2:
+          requires:
+            - reload_qi-verify
+      - qi-verify:
+          requires:
+            - sys_qi-verify_2
+      - Beta_APP-474:
+          requires:
+            - sys_qi-verify_2
+      - drain_APP-474_2:
+          requires:
+            - Beta_APP-474
+      - APP-474:
+          requires:
+            - drain_APP-474_2
+      - precheck_titan-alpha:
+          requires:
+            - drain_APP-474_2
+      - reset_titan-alpha_2:
+          requires:
+            - precheck_titan-alpha
+      - titan-alpha:
+          requires:
+            - reset_titan-alpha_2
+      - ctx2_teh-ci-22
+      - bundle_teh-ci-22_2:
+          requires:
+            - ctx2_teh-ci-22
+      - teh-ci-22:
+          requires:
+            - bundle_teh-ci-22_2
+      - alpha_shippit:
+          requires:
+            - bundle_teh-ci-22_2
+      - drain_shippit_2:
+          requires:
+            - alpha_shippit
+      - shippit:
+          requires:
+            - drain_shippit_2
+      - redo_break-prod:
+          requires:
+            - drain_shippit_2
+      - linter_break-prod_2:
+          requires:
+            - redo_break-prod
+      - break-prod:
+          requires:
+            - linter_break-prod_2
+      - bootstrap_fix-router-bug:
+          requires:
+            - linter_break-prod_2
+      - enqueue_fix-router-bug_2:
+          requires:
+            - bootstrap_fix-router-bug
+      - fix-router-bug:
+          requires:
+            - enqueue_fix-router-bug_2
+      - warmer_q3-smoke:
+          requires:
+            - enqueue_fix-router-bug_2
+      - deps_q3-smoke_2:
+          requires:
+            - warmer_q3-smoke
+      - q3-smoke:
+          requires:
+            - deps_q3-smoke_2
+      - produce_Rollout_Suite3
+      - warmer_Rollout_Suite3_2:
+          requires:
+            - produce_Rollout_Suite3
+      - Rollout_Suite3:
+          requires:
+            - warmer_Rollout_Suite3_2
+      - checker_polaris-alpha:
+          requires:
+            - warmer_Rollout_Suite3_2
+      - stage_polaris-alpha_2:
+          requires:
+            - checker_polaris-alpha
+      - polaris-alpha:
+          requires:
+            - stage_polaris-alpha_2
+      - reserve_realease:
+          requires:
+            - stage_polaris-alpha_2
+      - preflight_realease_2:
+          requires:
+            - reserve_realease
+      - realease:
+          requires:
+            - preflight_realease_2
+      - precheck_verify-partial-docker-image:
+          requires:
+            - preflight_realease_2
+      - Delta_verify-partial-docker-image_2:
+          requires:
+            - precheck_verify-partial-docker-image
+      - verify-partial-docker-image:
+          requires:
+            - Delta_verify-partial-docker-image_2
+      - runner_delta-4:
+          requires:
+            - Delta_verify-partial-docker-image_2
+      - D_delta-4_2:
+          requires:
+            - runner_delta-4
+      - delta-4:
+          requires:
+            - D_delta-4_2
+      - env_v6-beta2:
+          requires:
+            - D_delta-4_2
+      - precheck_v6-beta2_2:
+          requires:
+            - env_v6-beta2
+      - v6-beta2:
+          requires:
+            - precheck_v6-beta2_2
+      - g1_hyperion-rev:
+          requires:
+            - precheck_v6-beta2_2
+      - phase_hyperion-rev_2:
+          requires:
+            - g1_hyperion-rev
+      - hyperion-rev:
+          requires:
+            - phase_hyperion-rev_2
+      - spin_check-end-to-end-regression-suite:
+          requires:
+            - phase_hyperion-rev_2
+      - warmup_check-end-to-end-regression-suite_2:
+          requires:
+            - spin_check-end-to-end-regression-suite
+      - check-end-to-end-regression-suite:
+          requires:
+            - warmup_check-end-to-end-regression-suite_2
+      - run_py311-test:
+          requires:
+            - warmup_check-end-to-end-regression-suite_2
+      - reset_py311-test_2:
+          requires:
+            - run_py311-test
+      - py311-test:
+          requires:
+            - reset_py311-test_2
